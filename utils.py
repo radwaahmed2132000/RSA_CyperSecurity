@@ -79,22 +79,25 @@ def checkvalidation(m):
 def  readvalue():
     p= int(input("Enter P"))
     q = int(input("Enter Q"))
+    while p ==q:
+        p= int(input("Enter P again"))
+        q = int(input("Enter Q again"))
     if(not checkvalidation(p)):
         return False,p*q,(p-1)*(q-1),p,q
     if(not checkvalidation(q) ):
         return False,p*q,(p-1)*(q-1)
     return True,p*q,(p-1)*(q-1),p,q
 
-def modularInverse(e, phi):
-    for i in range(1, phi):
-        if (((e%phi) * (i%phi)) % phi == 1):
-            return i
-    return -1
+# def modularInverse(e, phi):
+#     for i in range(1, phi):
+#         if (((e%phi) * (i%phi)) % phi == 1):
+#             return i
+#     return -1
 
 def keys(n,phi):
     e=1
     for i in range (2, phi):
-        if(np.gcd(i,phi)==1):
+        if(GCD(i,phi)==1):
             e=i
             break
     # d=modularInverse(e,phi)
@@ -116,7 +119,7 @@ def BruteForceAttack(e,n):
                     q = n/i
                     break
     phi = int( (p-1)*(q-1))
-    d= modularInverse(e,phi)
+    d= InvertModulo(e,phi)
     return d
 
 def ChosenCipherTextAttack(a,b):
@@ -140,7 +143,7 @@ def ChosenCipherTextAttack(a,b):
         r.append(rn)   
     return y[-2]
 
-# p = 1000000007
+# p = 
 # q = 1000000009
 # exponent = 23917
 # modulo = p * q
