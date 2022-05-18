@@ -55,14 +55,15 @@ def Encrypt( e, n):
     message =input("Enter message")
     print(e,n)
     M = ConvertToInt(message)
-    if(M>n):
-        return "Invalid Message" ### it can be changed to take blocks of message
+    while(M>n):
+      message =input("Enter message again!!!")
+      M = ConvertToInt(message)
     c = PowMod(ConvertToInt(message), e, n)
     return c
 
-def Decrypt(c, p, q, e):
-    phi = (p-1)*(q-1)
-    d = InvertModulo(e, phi)
+def Decrypt(c, p, q, d):
+    # phi = (p-1)*(q-1)
+    # d = InvertModulo(e, phi)
     m = ConvertToStr(PowMod(c, d, p * q ))
     return m
 
@@ -96,7 +97,8 @@ def keys(n,phi):
         if(np.gcd(i,phi)==1):
             e=i
             break
-    d=modularInverse(e,phi)
+    # d=modularInverse(e,phi)
+    d = InvertModulo(e, phi)
     return e,d,n
 
 def BruteForceAttack(e,n):
