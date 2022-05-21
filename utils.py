@@ -2,125 +2,159 @@
 import sys, threading
 import numpy as np
 import math
-import csv
-import time 
 
 sys.setrecursionlimit(10**7)
 threading.stack_size(2**27)
 
-def ConvertToInt(message_str):
-    res = 0
-    for i in range(len(message_str)):
-        res = res * 256 + ord(message_str[i])
-    return res
+# A function that converts a string message to a long integer.
+# To turn it back to string use the function ConvertToStr.
+# Input: string str_message
+# Output: long int int_message
+def ConvertToInt(str_message):
+    int_message = 0
+    for i in range(len(str_message)):
+        int_message = int_message * 256 + ord(str_message[i])
+    return int_message
 
-def ConvertToStr(n):
-    res = ""
-    while n > 0:
-        res += chr(n % 256)
-        n //= 256
-    return res[::-1]
+# A function that converts a long integer to its respective string
+# It is the opposite of the ConvertToInt function.
+# Input: long int int_message
+# Output: string str_message
+def ConvertToStr(int_message):
+    str_message = ""
+    while int_message > 0:
+        str_message += chr(int_message % 256)
+        int_message //= 256
+    return str_message[::-1]
 
-def GCD(a, b):
-    if b == 0:
-        return a
-    return GCD(b, a % b)
+# A function that calculates the Greatest Common Divisor (GCD) of two integers.
+# Inputs: int integer_1, int integer_2
+# Output: int -> GCD of the ints integer_1 & integer_2
+def GCD(integer_1, integer_2):
+    if integer_2 == 0:
+        return integer_1
+    return GCD(integer_2, integer_1 % integer_2)
 
-def ExtendedEuclid(a, b):
-    if b == 0:
+# Extended Euclidean Algorithm that calculates the coefficients of Bezout's Identity.
+# where x*integer_1 + y*integer_2 = gcd(integer_1,integer_2)
+# Inputs: int integer_1, int integer_2
+# Outputs: int, int -> coefficients of the ints integer_1 & integer_2 respectively.
+def ExtendedEuclid(integer_1, integer_2):
+    if integer_2 == 0:
         return (1, 0)
-    (x, y) = ExtendedEuclid(b, a % b)
-    k = a // b
-    return (y, x - k * y)
+    (x, y) = ExtendedEuclid(integer_2, integer_1 % integer_2)
+    quotient = integer_1 // integer_2
+    return (y, x - quotient * y)
 
-# this is an R2L recursive implementation that works for large integers
-def PowMod(a, n, mod): 
-    if n == 0:
-        return 1 % mod
-    elif n == 1:
-        return a % mod
+# Modular Exponentiation Alogorithm that performs an exponentiation over a modulus.
+# This is a right to left recursive implementation that works for large integers.
+# It's as follows: remainder = base**(power) mod modulus.
+# Inputs: int base, int power, int modulus.
+# Output: int -> remainder when an integer (base) is raised to a power and divided by a positive integer (modulus).
+def ModularExp(base, power, modulus): 
+    if power == 0:
+        return 1 % modulus
+    elif power == 1:
+        return base % modulus
     else:
-        b = PowMod(a, n // 2, mod)
-        b = b * b % mod
-        if n % 2 == 0:
-            return b
+        temp = ModularExp(base, power // 2, modulus)
+        temp = temp * temp % modulus
+        if power % 2 == 0:
+            return temp
         else:
-            return b * a % mod
+            return temp * base % modulus
 
-def InvertModulo(a, n):
-    (b, x) = ExtendedEuclid(a, n)
-    if b < 0:
-        b = (b % n + n) % n # we don't want -ve integers
-    return b
+# A function that gets the modular multiplicative inverse of an integer.
+# where inverse*integer is congrent to 1 mod modulus.
+# Inputs: int integer, int modulus.
+# Output: int inverse.
+def InvertModulo(integer, modulus):
+    (inverse, extra) = ExtendedEuclid(integer, modulus)
+    if inverse < 0:
+        inverse = (inverse % modulus + modulus) % modulus # Because we don't want -ve integers.
+    return inverse
 
-# Used to trim the message if it's bigger than n
-def prepare_message(input_message,n):
+# A function used to trim the message if it's bigger than n.
+# Inputs: string input_message, int modulus.
+# Output: string message_trimmed.
+def prepare_message(input_message,modulus):
     message_trimmed = input_message
     M = ConvertToInt(input_message)
     j = 1
-    if(M>n):
+    if(M>modulus):
         print('Message is larger than n. Trimming it!!')
-    while(M>n):
+    while(M>modulus):
         M = ConvertToInt(input_message[0:-j])
         message_trimmed = input_message[0:-j]
         j += 1
     return message_trimmed
 
-def Encrypt(message, e, n):
-    # message = input("Enter message")
-    # print(e,n)
-    M = ConvertToInt(message)
-    # print("M = ",M)
-    # i = 1
-    # if(M>n):
-    #     print('Message is larger than n. Trimming it!!')
-    # while(M>n):
-    #     M = ConvertToInt(message[0:-i])
-    #     i += 1
-    #   message = input("Enter message again!!!")
-    #   M = ConvertToInt(message)
-    c = PowMod(M, e, n)
-    return c
+# RSA Encryption function.
+# First, converts the message to integer then encrypts it using the public key by using the ModularExp function.
+# Inputs: string plain_text, int public_key, int modulus.
+# Output: int cipher_text.
+def Encrypt(plain_text, public_key, modulus):
+    M = ConvertToInt(plain_text)
+    cipher_text = ModularExp(M, public_key, modulus)
+    return cipher_text
 
-def Decrypt(c, n, d):
-    m = ConvertToStr(PowMod(c, d, n))
-    return m
+# RSA Decryption function.
+# First, decrypts the cipher using the private key by using the ModularExp function.then converts it to string.
+# Inputs: int cipher_text, int private_key, int modulus.
+# Output: string plain_text.
+def Decrypt(cipher_text, private_key, modulus):
+    plain_text = ConvertToStr(ModularExp(cipher_text, private_key, modulus))
+    return plain_text
 
-
-def checkvalidation(m):
-    if(m<=1):
+# A function that checks whether an integer is a prime or not.
+# Input: int integer.
+# Output: bool is_prime True-> integer is a prime / False -> integer is not a prime.
+def check_if_prime(integer):
+    if(integer<=1):
         return False
-    for i in range(2, int(np.sqrt(m*1.0)) + 1):
-        if (m % i == 0):
+    for i in range(2, int(np.sqrt(integer*1.0)) + 1):
+        if (integer % i == 0):
             return False
     return True
 
-def  readvalue():
+# A function that reads the p & q values from the user.
+# It checks that they are prime before returning them.
+# where modulus = p * q, phi = (p-1)*(q-1)
+# are_prime -> True if both p & q are prime / -> False otherwise.
+# Inputs: _
+# Outputs: bool are_prime, int modulus, int phi, int p, int q.
+def readvalue():
     p= int(input("Enter P"))
     q = int(input("Enter Q"))
-    while p ==q:
+    while p == q:
         p= int(input("Enter P again"))
         q = int(input("Enter Q again"))
-    if(not checkvalidation(p)):
+    if(not check_if_prime(p)):
         return False,p*q,(p-1)*(q-1),p,q
-    if(not checkvalidation(q) ):
+    if(not check_if_prime(q) ):
         return False,p*q,(p-1)*(q-1)
     return True,p*q,(p-1)*(q-1),p,q
 
-def keys(n,phi):
-    e=1
+# A key generation function that generates a pair of keys (public and private keys).
+# Input: int phi.
+# Outputs: int public_key, int private_key.
+def keys(phi):
+    public_key=1
     for i in range (phi//2, phi):
         if(GCD(i,phi)==1):
-            e=i
+            public_key=i
             break
-    d = InvertModulo(e, phi)
-    return e,d,n
+    private_key = InvertModulo(public_key, phi)
+    return public_key,private_key
 
-def BruteForceAttack(e,n):
+# A brute force attack that attempts to find the private key given the modulus and the public key.
+# Inputs: int public_key, int modulus.
+# Output: int private_key.
+def BruteForceAttack(public_key,modulus):
     q=0
     p=0
-    for i in range (2, n):
-            if(n%i==0):
+    for i in range (2, modulus):
+            if(modulus%i==0):
                 check = False
                 for j in range(2,i):
                     if(i%j==0):
@@ -128,12 +162,15 @@ def BruteForceAttack(e,n):
                         break
                 if(not check):
                     p = i
-                    q = n/i
+                    q = modulus/i
                     break
     phi = int( (p-1)*(q-1))
-    d= InvertModulo(e,phi)
-    return d
+    private_key = InvertModulo(public_key,phi)
+    return private_key
 
+# Chosen Ciphertext Attack Algorithm.
+# Inputs: int a, int b.
+# Output: int private_key.
 def ChosenCipherTextAttack(a,b):
     a = max(a,b)
     b= min(a,b)
@@ -154,40 +191,3 @@ def ChosenCipherTextAttack(a,b):
         y.append(y[-2]-qn*y[-1])
         r.append(rn)   
     return y[-2]
-
-# p = 1000000007
-# q = 1000000009
-# exponent = 23917
-# n = p * q
-# ciphertext = Encrypt("attack", n, exponent)
-# message = Decrypt(ciphertext, n, exponent)
-# print(message)
-
-# "Crypto ~2022&!"
-# p = 790383132652258876190399065097
-# q = 662503581792812531719955475509
-# p = 11
-# q = 71
-# exponent = 23917
-# n = p * q
-# print(n,len(bin(n)[2:]))
-# e,d,n = keys(n, (p-1)*(q-1))
-# ciphertext = Encrypt(e, n)
-# print('Using e: ', ciphertext)
-# message = Decrypt(ciphertext, n, d)
-# print(message)
-# ciphertext = Encrypt(d, n)
-# print('Using d: ', ciphertext)
-# message = Decrypt(ciphertext, n, e)
-# print('Using d: ', message)
-
-# start_time = time.time()
-# p = 790383132652258876190399065097
-# q = 662503581792812531719955475509
-# exponent = 23917
-# n = p * q
-# ciphertext = Encrypt(exponent, n)
-# finish_time = time.time()
-
-# total_time = finish_time - start_time
-# print('Total Time = ', total_time)

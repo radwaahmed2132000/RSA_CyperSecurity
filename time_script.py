@@ -9,10 +9,65 @@ from utils import *
 sys.setrecursionlimit(10**7)
 threading.stack_size(2**27)
 
+# First, the Encryption & Decryption time vs. Execution time graph preparations.
 p = []
 q = []
 
+# Read the testcases from the file
 file = open('testcases.csv')
+csvreader = csv.reader(file)
+for row in csvreader:
+    p.append(int(row[0]))
+    q.append(int(row[1]))
+file.close()
+
+# Open a file to write the no. of bits of n, execution time of the encryption & decreption respectively.
+file = open('graph_data.csv', 'w', encoding='UTF8', newline='')
+csvwriter = csv.writer(file)
+
+# Read message to use to test on all the testcases.
+input_message = input("Enter message")
+
+# Loop on all the testcases, calculate the encryption & decreption execution times.
+for i in range(len(p)):
+
+    timing_ed_data = []
+    n = int(p[i]) * int(q[i])
+    print('# of digits = ',len(str(n)))
+    print(n,len(bin(n)[2:]))
+    timing_ed_data.append(len(bin(n)[2:]))
+    e,d,n = keys(n, int(p[i]-1)*int(q[i]-1))
+
+    # Prepare string
+    message_trimmed = prepare_message(input_message, n)
+
+    # Encryption
+    start_time = time.time()
+    ciphertext = Encrypt(message_trimmed, e, n)
+    finish_time = time.time()
+    total_time = finish_time - start_time
+    print('Encryption Time = ', total_time*1000)
+    timing_ed_data.append(total_time*1000)
+
+    # Decryption
+    start_time = time.time()
+    message = Decrypt(ciphertext, n, d)
+    finish_time = time.time()
+    total_time = finish_time - start_time
+    print('Decryption Time = ', total_time*1000)
+    timing_ed_data.append(total_time*1000)
+    
+    print('Message',message)
+    csvwriter.writerow(timing_ed_data)
+
+file.close()
+
+# Second, n vs. the Brute Force Attack Execution time graph preparations.
+p = []
+q = []
+
+# Read the testcases from the file
+file = open('brute_force_input.csv')
 csvreader = csv.reader(file)
 rows = []
 for row in csvreader:
@@ -21,62 +76,28 @@ for row in csvreader:
     q.append(int(row[1]))
 
 file.close()
-# data = np.array(rows).astype(int)
-# data = rows
 
-# p = data[:,0]
-# q = data[:,1]
-# print(p)
-# print(q)
+file2 = open('brute_force_data.csv', 'w', encoding='UTF8', newline='')
+csvwriter2 = csv.writer(file2)
 
-file = open('graph_data.csv', 'w', encoding='UTF8', newline='')
-csvwriter = csv.writer(file)
-input_message = input("Enter message")
-
-no_of_digits = []
-encryption_execution_times = []
-decryption_execution_times = []
-
-# for i in range(p.shape[0]):
 for i in range(len(p)):
-    row_data = []
+    brute_force_data = []
+
     n = int(p[i]) * int(q[i])
     print('# of digits = ',len(str(n)))
     print(n,len(bin(n)[2:]))
-    no_of_digits.append(len(bin(n)[2:]))
-    row_data.append(len(bin(n)[2:]))
+    brute_force_data.append(n)
     e,d,n = keys(n, int(p[i]-1)*int(q[i]-1))
 
-    # Prepare string
-    message_trimmed = input_message
-    M = ConvertToInt(input_message)
-    j = 1
-    if(M>n):
-        print('Message is larger than n. Trimming it!!')
-    while(M>n):
-        M = ConvertToInt(input_message[0:-j])
-        message_trimmed = input_message[0:-j]
-        j += 1
-
-    # Encryption
+    # Brute Force Attack
     start_time = time.time()
-    ciphertext = Encrypt(message_trimmed, e, n)
+    BruteForceAttack(e,n)
     finish_time = time.time()
     total_time = finish_time - start_time
-    print('Encryption Time = ', total_time*1000)
-    row_data.append(total_time*1000)
-    encryption_execution_times.append(total_time*1000)
+    print('Brute Force Attack Time = ', total_time)
+    brute_force_data.append(total_time)
+    brute_force_data.append(len(bin(n)[2:]))
 
-    # Decryption
-    start_time = time.time()
-    message = Decrypt(ciphertext, n, d)
-    finish_time = time.time()
-    total_time = finish_time - start_time
-    print('Decryption Time = ', total_time*1000)
-    row_data.append(total_time*1000)
-    decryption_execution_times.append(total_time*1000)
-    
-    print('Message',message)
-    csvwriter.writerow(row_data)
+    csvwriter2.writerow(brute_force_data)
 
-file.close()
+file2.close()
