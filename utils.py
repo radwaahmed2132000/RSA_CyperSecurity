@@ -2,6 +2,8 @@
 import sys, threading
 import numpy as np
 import math
+import csv
+import time 
 
 sys.setrecursionlimit(10**7)
 threading.stack_size(2**27)
@@ -51,27 +53,44 @@ def InvertModulo(a, n):
         b = (b % n + n) % n # we don't want -ve integers
     return b
 
-def Encrypt( e, n):
-    message =input("Enter message")
-    print(e,n)
-    M = ConvertToInt(message)
+# Used to trim the message if it's bigger than n
+def prepare_message(input_message,n):
+    message_trimmed = input_message
+    M = ConvertToInt(input_message)
+    j = 1
+    if(M>n):
+        print('Message is larger than n. Trimming it!!')
     while(M>n):
-      message =input("Enter message again!!!")
-      M = ConvertToInt(message)
-    c = PowMod(ConvertToInt(message), e, n)
+        M = ConvertToInt(input_message[0:-j])
+        message_trimmed = input_message[0:-j]
+        j += 1
+    return message_trimmed
+
+def Encrypt(message, e, n):
+    # message = input("Enter message")
+    # print(e,n)
+    M = ConvertToInt(message)
+    # print("M = ",M)
+    # i = 1
+    # if(M>n):
+    #     print('Message is larger than n. Trimming it!!')
+    # while(M>n):
+    #     M = ConvertToInt(message[0:-i])
+    #     i += 1
+    #   message = input("Enter message again!!!")
+    #   M = ConvertToInt(message)
+    c = PowMod(M, e, n)
     return c
 
-def Decrypt(c, p, q, d):
-    # phi = (p-1)*(q-1)
-    # d = InvertModulo(e, phi)
-    m = ConvertToStr(PowMod(c, d, p * q ))
+def Decrypt(c, n, d):
+    m = ConvertToStr(PowMod(c, d, n))
     return m
 
 
 def checkvalidation(m):
     if(m<=1):
         return False
-    for i in range(2, int(np.sqrt(m)) + 1):
+    for i in range(2, int(np.sqrt(m*1.0)) + 1):
         if (m % i == 0):
             return False
     return True
@@ -88,19 +107,12 @@ def  readvalue():
         return False,p*q,(p-1)*(q-1)
     return True,p*q,(p-1)*(q-1),p,q
 
-# def modularInverse(e, phi):
-#     for i in range(1, phi):
-#         if (((e%phi) * (i%phi)) % phi == 1):
-#             return i
-#     return -1
-
 def keys(n,phi):
     e=1
-    for i in range (2, phi):
+    for i in range (phi//2, phi):
         if(GCD(i,phi)==1):
             e=i
             break
-    # d=modularInverse(e,phi)
     d = InvertModulo(e, phi)
     return e,d,n
 
@@ -143,10 +155,39 @@ def ChosenCipherTextAttack(a,b):
         r.append(rn)   
     return y[-2]
 
-# p = 
+# p = 1000000007
 # q = 1000000009
 # exponent = 23917
-# modulo = p * q
-# ciphertext = Encrypt("attack", modulo, exponent)
-# message = Decrypt(ciphertext, p, q, exponent)
+# n = p * q
+# ciphertext = Encrypt("attack", n, exponent)
+# message = Decrypt(ciphertext, n, exponent)
 # print(message)
+
+# "Crypto ~2022&!"
+# p = 790383132652258876190399065097
+# q = 662503581792812531719955475509
+# p = 11
+# q = 71
+# exponent = 23917
+# n = p * q
+# print(n,len(bin(n)[2:]))
+# e,d,n = keys(n, (p-1)*(q-1))
+# ciphertext = Encrypt(e, n)
+# print('Using e: ', ciphertext)
+# message = Decrypt(ciphertext, n, d)
+# print(message)
+# ciphertext = Encrypt(d, n)
+# print('Using d: ', ciphertext)
+# message = Decrypt(ciphertext, n, e)
+# print('Using d: ', message)
+
+# start_time = time.time()
+# p = 790383132652258876190399065097
+# q = 662503581792812531719955475509
+# exponent = 23917
+# n = p * q
+# ciphertext = Encrypt(exponent, n)
+# finish_time = time.time()
+
+# total_time = finish_time - start_time
+# print('Total Time = ', total_time)
