@@ -36,7 +36,7 @@ for i in range(len(p)):
     print('# of digits = ',len(str(n)))
     print(n,len(bin(n)[2:]))
     timing_ed_data.append(len(bin(n)[2:]))
-    e,d,n = keys(n, int(p[i]-1)*int(q[i]-1))
+    e,d = keys(int(p[i]-1)*int(q[i]-1))
 
     # Prepare string
     message_trimmed = prepare_message(input_message, n)
@@ -51,7 +51,7 @@ for i in range(len(p)):
 
     # Decryption
     start_time = time.time()
-    message = Decrypt(ciphertext, n, d)
+    message = Decrypt(ciphertext, d, n)
     finish_time = time.time()
     total_time = finish_time - start_time
     print('Decryption Time = ', total_time*1000)
@@ -87,7 +87,7 @@ for i in range(len(p)):
     print('# of digits = ',len(str(n)))
     print(n,len(bin(n)[2:]))
     brute_force_data.append(n)
-    e,d,n = keys(n, int(p[i]-1)*int(q[i]-1))
+    e,d = keys(int(p[i]-1)*int(q[i]-1))
 
     # Brute Force Attack
     start_time = time.time()
