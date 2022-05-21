@@ -13,7 +13,7 @@ threading.stack_size(2**27)
 def ConvertToInt(str_message):
     int_message = 0
     for i in range(len(str_message)):
-        int_message = int_message * 256 + ord(str_message[i])
+        int_message = ord(str_message[i]) + int_message * 256
     return int_message
 
 # A function that converts a long integer to its respective string
@@ -43,8 +43,7 @@ def ExtendedEuclid(integer_1, integer_2):
     if integer_2 == 0:
         return (1, 0)
     (x, y) = ExtendedEuclid(integer_2, integer_1 % integer_2)
-    quotient = integer_1 // integer_2
-    return (y, x - quotient * y)
+    return (y, x - (integer_1 // integer_2) * y)
 
 # Modular Exponentiation Alogorithm that performs an exponentiation over a modulus.
 # This is a right to left recursive implementation that works for large integers.
@@ -77,7 +76,7 @@ def InvertModulo(integer, modulus):
 # A function used to trim the message if it's bigger than n.
 # Inputs: string input_message, int modulus.
 # Output: string message_trimmed.
-def prepare_message(input_message,modulus):
+def PrepareMessage(input_message,modulus):
     message_trimmed = input_message
     M = ConvertToInt(input_message)
     j = 1
@@ -94,8 +93,7 @@ def prepare_message(input_message,modulus):
 # Inputs: string plain_text, int public_key, int modulus.
 # Output: int cipher_text.
 def Encrypt(plain_text, public_key, modulus):
-    M = ConvertToInt(plain_text)
-    cipher_text = ModularExp(M, public_key, modulus)
+    cipher_text = ModularExp(ConvertToInt(plain_text), public_key, modulus)
     return cipher_text
 
 # RSA Decryption function.
@@ -109,7 +107,7 @@ def Decrypt(cipher_text, private_key, modulus):
 # A function that checks whether an integer is a prime or not.
 # Input: int integer.
 # Output: bool is_prime True-> integer is a prime / False -> integer is not a prime.
-def check_if_prime(integer):
+def CheckIfPrime(integer):
     if(integer<=1):
         return False
     for i in range(2, int(np.sqrt(integer*1.0)) + 1):
@@ -123,22 +121,22 @@ def check_if_prime(integer):
 # are_prime -> True if both p & q are prime / -> False otherwise.
 # Inputs: _
 # Outputs: bool are_prime, int modulus, int phi, int p, int q.
-def readvalue():
-    p= int(input("Enter P"))
+def ReadValues():
+    p = int(input("Enter P"))
     q = int(input("Enter Q"))
     while p == q:
-        p= int(input("Enter P again"))
+        p = int(input("Enter P again"))
         q = int(input("Enter Q again"))
-    if(not check_if_prime(p)):
+    if(not CheckIfPrime(p)):
         return False,p*q,(p-1)*(q-1),p,q
-    if(not check_if_prime(q) ):
+    if(not CheckIfPrime(q) ):
         return False,p*q,(p-1)*(q-1)
     return True,p*q,(p-1)*(q-1),p,q
 
 # A key generation function that generates a pair of keys (public and private keys).
 # Input: int phi.
 # Outputs: int public_key, int private_key.
-def keys(phi):
+def GenerateKeys(phi):
     public_key=1
     for i in range (phi//2, phi):
         if(GCD(i,phi)==1):
@@ -173,18 +171,18 @@ def BruteForceAttack(public_key,modulus):
 # Output: int private_key.
 def ChosenCipherTextAttack(a,b):
     a = max(a,b)
-    b= min(a,b)
-    r=[]
+    b = min(a,b)
+    r = []
     r.append(a)
     r.append(b)
-    x=[]
+    x = []
     x.append(1)
     x.append(0)
-    y=[]
+    y = []
     y.append(0)
     y.append(1)
     rn = a
-    while(rn !=0):
+    while(rn != 0):
         rn= r[-2] % r[-1]
         qn = math.floor(r[-2]/r[-1])
         x.append(x[-2]-qn*x[-1])

@@ -39,7 +39,7 @@ for i in range(len(p)):
     e,d = keys(int(p[i]-1)*int(q[i]-1))
 
     # Prepare string
-    message_trimmed = prepare_message(input_message, n)
+    message_trimmed = PrepareMessage(input_message, n)
 
     # Encryption
     start_time = time.time()
