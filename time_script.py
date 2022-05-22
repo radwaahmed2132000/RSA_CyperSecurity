@@ -36,7 +36,7 @@ for i in range(len(p)):
     print('# of digits = ',len(str(n)))
     print(n,len(bin(n)[2:]))
     timing_ed_data.append(len(bin(n)[2:]))
-    e,d = keys(int(p[i]-1)*int(q[i]-1))
+    e,d = GenerateKeys(int(p[i]-1)*int(q[i]-1))
 
     # Prepare string
     message_trimmed = PrepareMessage(input_message, n)
