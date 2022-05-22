@@ -90,18 +90,18 @@ def PrepareMessage(input_message,modulus):
 
 # RSA Encryption function.
 # First, converts the message to integer then encrypts it using the public key by using the ModularExp function.
-# Inputs: string plain_text, int public_key, int modulus.
+# Inputs: string plain_text, int encryption_key, int modulus. {encryption_key, modulus} is known as the public key.
 # Output: int cipher_text.
-def Encrypt(plain_text, public_key, modulus):
-    cipher_text = ModularExp(ConvertToInt(plain_text), public_key, modulus)
+def Encrypt(plain_text, encryption_key, modulus):
+    cipher_text = ModularExp(ConvertToInt(plain_text), encryption_key, modulus)
     return cipher_text
 
 # RSA Decryption function.
 # First, decrypts the cipher using the private key by using the ModularExp function.then converts it to string.
-# Inputs: int cipher_text, int private_key, int modulus.
+# Inputs: int cipher_text, int decryption_key, int modulus. {decryption_key, modulus} is known as the private key.
 # Output: string plain_text.
-def Decrypt(cipher_text, private_key, modulus):
-    plain_text = ConvertToStr(ModularExp(cipher_text, private_key, modulus))
+def Decrypt(cipher_text, decryption_key, modulus):
+    plain_text = ConvertToStr(ModularExp(cipher_text, decryption_key, modulus))
     return plain_text
 
 # A function that checks whether an integer is a prime or not.
@@ -135,20 +135,20 @@ def ReadValues():
 
 # A key generation function that generates a pair of keys (public and private keys).
 # Input: int phi.
-# Outputs: int public_key, int private_key.
+# Outputs: int encryption_key, int decryption_key.
 def GenerateKeys(phi):
-    public_key=1
+    encryption_key=1
     for i in range (phi//2, phi):
         if(GCD(i,phi)==1):
-            public_key=i
+            encryption_key=i
             break
-    private_key = InvertModulo(public_key, phi)
-    return public_key,private_key
+    decryption_key = InvertModulo(encryption_key, phi)
+    return encryption_key,decryption_key
 
 # A brute force attack that attempts to find the private key given the modulus and the public key.
-# Inputs: int public_key, int modulus.
-# Output: int private_key.
-def BruteForceAttack(public_key,modulus):
+# Inputs: int encryption_key, int modulus.
+# Output: int decryption_key.
+def BruteForceAttack(encryption_key,modulus):
     q=0
     p=0
     for i in range (2, modulus):
@@ -163,12 +163,12 @@ def BruteForceAttack(public_key,modulus):
                     q = modulus/i
                     break
     phi = int( (p-1)*(q-1))
-    private_key = InvertModulo(public_key,phi)
-    return private_key
+    decryption_key = InvertModulo(encryption_key,phi)
+    return decryption_key
 
 # Chosen Ciphertext Attack Algorithm.
 # Inputs: int a, int b.
-# Output: int private_key.
+# Output: int decryption_key.
 def ChosenCipherTextAttack(a,b):
     a = max(a,b)
     b = min(a,b)
