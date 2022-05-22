@@ -39,13 +39,13 @@ def GCD(integer_1, integer_2):
 # where x*integer_1 + y*integer_2 = gcd(integer_1,integer_2)
 # Inputs: int integer_1, int integer_2
 # Outputs: int, int -> coefficients of the ints integer_1 & integer_2 respectively.
-def ExtendedEuclid(integer_1, integer_2):
+def ExtendedEuclidian(integer_1, integer_2):
     if integer_2 == 0:
         return (1, 0)
-    (x, y) = ExtendedEuclid(integer_2, integer_1 % integer_2)
+    (x, y) = ExtendedEuclidian(integer_2, integer_1 % integer_2)
     return (y, x - (integer_1 // integer_2) * y)
 
-# Modular Exponentiation Alogorithm that performs an exponentiation over a modulus.
+# Modular Exponentiation Algorithm that performs an exponentiation over a modulus.
 # This is a right to left recursive implementation that works for large integers.
 # It's as follows: remainder = base**(power) mod modulus.
 # Inputs: int base, int power, int modulus.
@@ -68,7 +68,7 @@ def ModularExp(base, power, modulus):
 # Inputs: int integer, int modulus.
 # Output: int inverse.
 def InvertModulo(integer, modulus):
-    (inverse, extra) = ExtendedEuclid(integer, modulus)
+    (inverse, extra) = ExtendedEuclidian(integer, modulus)
     if inverse < 0:
         inverse = (inverse % modulus + modulus) % modulus # Because we don't want -ve integers.
     return inverse
